@@ -3,8 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { TransactionService } from './transaction.service';
 
-@ApiTags('api/v1/Transaction')
-@Controller('transactions')
+@ApiTags('transactions')
+@Controller('api/v1/transaction')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionService) {}
 

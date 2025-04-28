@@ -32,8 +32,8 @@ export class OrderService {
     const { userId } = createOrderDto;
 
     //verify user
-    const user = await this.userService.findOne(userId);
-    if (!user) throw new BadRequestException('Invalid user');
+    // const user = await this.userService.findOne(userId);
+    // if (!user) throw new BadRequestException('Invalid user');
 
     // Get user's cart
     const cart = await this.cartService.getCart(userId);
@@ -67,7 +67,7 @@ export class OrderService {
       //initialize paystack
       const initializePaystack = await this.paystackService.initiatePayment({
         amount: cart.totalAmount,
-        email: user.email,
+        email: 'emmy@gmail.com',
       });
 
       if (!initializePaystack.data) {

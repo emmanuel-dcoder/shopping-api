@@ -2,7 +2,7 @@ import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { comparePassword } from 'src/core/common/utils/utility';
+import { comparePassword } from 'src/core/common/utility';
 import { User } from 'src/user/schemas/user.schema';
 
 @Injectable()

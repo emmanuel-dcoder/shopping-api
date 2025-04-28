@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import { hashPassword } from 'src/core/common/utility';
+import { hashPassword } from 'src/util/utility';
 import { MailService } from 'src/core/mail/email';
 import { UpdateUserDto } from './dto/update-user.dto';
 

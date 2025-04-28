@@ -59,7 +59,7 @@ export class CartService {
 
     // Check if product exists and has enough stock
     const product = await this.productsService.findOne(item.productId);
-    console.log('product', product);
+
     if (product.stockQuantity < item.quantity) {
       throw new BadRequestException(
         `Not enough stock available for product ${product.name}`,

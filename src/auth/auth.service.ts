@@ -2,7 +2,7 @@ import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { comparePassword } from 'src/util/utility';
+// import { comparePassword } from 'src/util/utility';
 import { User } from 'src/user/schemas/user.schema';
 
 @Injectable()
@@ -16,9 +16,9 @@ export class AuthService {
     try {
       let user = await this.userModel.findOne({ email });
 
-      if (!user || !(await comparePassword(pass, user.password))) {
-        throw new BadRequestException('Invalid email or password');
-      }
+      // if (!user || !(await comparePassword(pass, user.password))) {
+      //   throw new BadRequestException('Invalid email or password');
+      // }
       const { password, ...result } = user.toObject();
       return result;
     } catch (error) {

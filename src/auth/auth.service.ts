@@ -14,11 +14,11 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<any> {
     try {
-      let user = await this.userModel.findOne({ email });
-
       // if (!user || !(await comparePassword(pass, user.password))) {
       //   throw new BadRequestException('Invalid email or password');
       // }
+      let user = await this.userModel.findOne({ email });
+
       const { password, ...result } = user.toObject();
       return result;
     } catch (error) {

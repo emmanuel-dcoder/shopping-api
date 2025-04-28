@@ -12,7 +12,6 @@ import { ProductService } from 'src/product/product.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto';
 import { OrderStatus } from './enum/order-enum';
 import { PaystackService } from 'src/provider/paystack.service';
-import { UserService } from 'src/user/user.service';
 // import { CACHE_MANAGER } from '@nestjs/cache-manager';
 // import { Cache } from 'cache-manager';
 
@@ -20,7 +19,6 @@ import { UserService } from 'src/user/user.service';
 export class OrderService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<Order>,
-    private userService: UserService,
     private cartService: CartService,
     private productService: ProductService,
     private paystackService: PaystackService,
@@ -30,10 +28,6 @@ export class OrderService {
   // Create a new order from cart
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
     const { userId } = createOrderDto;
-
-    //verify user
-    // const user = await this.userService.findOne(userId);
-    // if (!user) throw new BadRequestException('Invalid user');
 
     // Get user's cart
     const cart = await this.cartService.getCart(userId);
@@ -67,7 +61,7 @@ export class OrderService {
       //initialize paystack
       const initializePaystack = await this.paystackService.initiatePayment({
         amount: cart.totalAmount,
-        email: 'emmy@gmail.com',
+        email: 'eee@gmail.com',
       });
 
       if (!initializePaystack.data) {

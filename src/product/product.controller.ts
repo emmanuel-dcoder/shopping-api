@@ -18,12 +18,11 @@ import {
   ApiQuery,
   ApiParam,
 } from '@nestjs/swagger';
-
-import { successResponse } from 'src/core/config/response';
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateStockDto } from './dto/create-product.dto';
 import { Product } from './schemas/product.schema';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { successResponse } from '../core/config/response';
 
 @ApiTags('Product')
 @Controller('api/v1/product')

@@ -9,11 +9,15 @@ import { Model } from 'mongoose';
 import { Product } from './schemas/product.schema';
 import { CreateProductDto, UpdateStockDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   //create a new product
@@ -23,6 +27,9 @@ export class ProductService {
       const product = await newProduct.save();
 
       if (!product) throw new BadRequestException('Error creating product');
+
+      // Clear products cache
+      await this.cacheManager.del('all_products');
 
       return product;
     } catch (error) {
@@ -44,32 +51,28 @@ export class ProductService {
     limit: number;
   }> {
     try {
-      // const cacheKey = `all_products_${page}_${limit}_${query || ''}`;
+      const cacheKey = `all_products_${page}_${limit}`;
 
-      // // Try to get from cache
-      // const cachedProducts = await this.cacheManager.get(cacheKey);
-      // if (cachedProducts) {
-      //   return cachedProducts as {
-      //     products: Product[];
-      //     total: number;
-      //     page: number;
-      //     limit: number;
-      //   };
-      // }
-
-      // Build query
-      const filter: any = {};
+      // Try to get from cache
+      const cachedProducts = await this.cacheManager.get(cacheKey);
+      if (cachedProducts) {
+        return cachedProducts as {
+          products: Product[];
+          total: number;
+          page: number;
+          limit: number;
+        };
+      }
 
       const skip = (page - 1) * limit;
       const [products, total] = await Promise.all([
-        this.productModel.find(filter).skip(skip).limit(limit).exec(),
-        this.productModel.countDocuments(filter).exec(),
+        this.productModel.find().skip(skip).limit(limit).exec(),
+        this.productModel.countDocuments().exec(),
       ]);
 
       const result = { products, total, page, limit };
 
-      // Cache results
-      // await this.cacheManager.set(cacheKey, result, 60); // TTL: 60 seconds
+      await this.cacheManager.set(cacheKey, result, 60); // TTL: 60 seconds
 
       return result;
     } catch (error) {
@@ -83,21 +86,20 @@ export class ProductService {
   // Get a product by ID
   async findOne(id: string): Promise<Product> {
     try {
-      // const cacheKey = `product_${id}`;
+      const cacheKey = `product_${id}`;
 
-      // // Try to get from cache
-      // const cachedProduct = await this.cacheManager.get(cacheKey);
-      // if (cachedProduct) {
-      //   return cachedProduct as Product;
-      // }
+      // Try to get from cache
+      const cachedProduct = await this.cacheManager.get(cacheKey);
+      if (cachedProduct) {
+        return cachedProduct as Product;
+      }
 
       const product = await this.productModel.findById(id).exec();
       if (!product) {
         throw new NotFoundException(`Product with ID ${id} not found`);
       }
 
-      // Cache product
-      // await this.cacheManager.set(cacheKey, product, 300); // TTL: 5 minutes
+      await this.cacheManager.set(cacheKey, product, 300);
 
       return product;
     } catch (error) {
@@ -122,9 +124,8 @@ export class ProductService {
         throw new NotFoundException(`Product with ID ${id} not found`);
       }
 
-      // Clear cache
-      // await this.cacheManager.del(`product_${id}`);
-      // await this.cacheManager.del('all_products');
+      await this.cacheManager.del(`product_${id}`);
+      await this.cacheManager.del('all_products');
 
       return product;
     } catch (error) {
@@ -179,8 +180,7 @@ export class ProductService {
           continue;
         }
 
-        // Clear cache
-        // await this.cacheManager.del(`product_${id}`);
+        await this.cacheManager.del(`product_${id}`);
 
         return updatedProduct;
       } catch (error) {
@@ -244,9 +244,8 @@ export class ProductService {
         throw new NotFoundException(`Product with ID ${id} not found`);
       }
 
-      // Clear cache
-      // await this.cacheManager.del(`product_${id}`);
-      // await this.cacheManager.del('all_products');
+      await this.cacheManager.del(`product_${id}`);
+      await this.cacheManager.del('all_products');
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

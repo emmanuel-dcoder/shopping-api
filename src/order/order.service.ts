@@ -3,18 +3,19 @@ import {
   BadRequestException,
   HttpException,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order } from './schemas/order.schema';
-import { CartService } from 'src/cart/cart.service';
-import { ProductService } from 'src/product/product.service';
+import { CartService } from '../cart/cart.service';
+import { ProductService } from '../product/product.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto';
 import { OrderStatus } from './enum/order-enum';
-import { PaystackService } from 'src/provider/paystack.service';
-import { UserService } from 'src/user/user.service';
-// import { CACHE_MANAGER } from '@nestjs/cache-manager';
-// import { Cache } from 'cache-manager';
+import { PaystackService } from '../provider/paystack.service';
+import { UserService } from '../user/user.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class OrderService {
@@ -24,7 +25,7 @@ export class OrderService {
     private cartService: CartService,
     private productService: ProductService,
     private paystackService: PaystackService,
-    // @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   // Create a new order from cart
@@ -94,8 +95,7 @@ export class OrderService {
       // Clear user's cart
       await this.cartService.clearCart(userId);
 
-      // Clear cache
-      // await this.cacheManager.del(`user_orders_${userId}`);
+      await this.cacheManager.del(`user_orders_${userId}`);
 
       return initializePaystack.data;
     } catch (error) {
@@ -114,20 +114,19 @@ export class OrderService {
     status?: OrderStatus,
   ): Promise<{ orders: Order[]; total: number; page: number; limit: number }> {
     try {
-      // const cacheKey = `user_orders_${userId}_${page}_${limit}_${status || ''}`;
+      const cacheKey = `user_orders_${userId}_${page}_${limit}_${status || ''}`;
 
       // Try to get from cache
-      // const cachedOrders = await this.cacheManager.get(cacheKey);
-      // if (cachedOrders) {
-      //   return cachedOrders as {
-      //     orders: Order[];
-      //     total: number;
-      //     page: number;
-      //     limit: number;
-      //   };
-      // }
+      const cachedOrders = await this.cacheManager.get(cacheKey);
+      if (cachedOrders) {
+        return cachedOrders as {
+          orders: Order[];
+          total: number;
+          page: number;
+          limit: number;
+        };
+      }
 
-      // Build query
       const filter: any = { userId };
       if (status) {
         filter.status = status;
@@ -148,8 +147,7 @@ export class OrderService {
 
       const result = { orders, total, page, limit };
 
-      // Cache results
-      // await this.cacheManager.set(cacheKey, result, 60); // TTL: 60 seconds
+      await this.cacheManager.set(cacheKey, result, 60);
 
       return result;
     } catch (error) {
@@ -166,10 +164,10 @@ export class OrderService {
       const cacheKey = `order_${id}`;
 
       // Try to get from cache
-      // const cachedOrder = await this.cacheManager.get(cacheKey);
-      // if (cachedOrder) {
-      //   return cachedOrder as Order;
-      // }
+      const cachedOrder = await this.cacheManager.get(cacheKey);
+      if (cachedOrder) {
+        return cachedOrder as Order;
+      }
 
       const order = await this.orderModel.findById(id).exec();
 
@@ -177,8 +175,7 @@ export class OrderService {
         throw new NotFoundException(`Order with ID ${id} not found`);
       }
 
-      // Cache order
-      // await this.cacheManager.set(cacheKey, order, 300); // TTL: 5 minutes
+      await this.cacheManager.set(cacheKey, order, 300); // TTL: 5 minutes
 
       return order;
     } catch (error) {
@@ -219,9 +216,8 @@ export class OrderService {
         throw new NotFoundException(`Order with ID ${id} not found`);
       }
 
-      // Clear cache
-      // await this.cacheManager.del(`order_${id}`);
-      // await this.cacheManager.del(`user_orders_${order.userId}`);
+      await this.cacheManager.del(`order_${id}`);
+      await this.cacheManager.del(`user_orders_${order.userId}`);
 
       return updatedOrder;
     } catch (error) {

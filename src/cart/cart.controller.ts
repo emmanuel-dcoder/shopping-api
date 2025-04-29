@@ -16,7 +16,7 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
-import { successResponse } from 'src/core/config/response';
+import { successResponse } from '../core/config/response';
 import { CartService } from './cart.service';
 import { AddToCartDto, UpdateCartItemDto } from './dto/create-cart.dto';
 

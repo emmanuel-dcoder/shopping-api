@@ -2,7 +2,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { IPaymentProvider } from './interface/payment-provider.interface';
-import { envConfig } from 'src/core/config/env.config';
+import { envConfig } from '../core/config/env.config';
 
 @Injectable()
 export class PaystackService implements IPaymentProvider {

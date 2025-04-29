@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Order } from 'src/order/schemas/order.schema';
+import { Order } from '../order/schemas/order.schema';
 import * as crypto from 'crypto';
-import { envConfig } from 'src/core/config/env.config';
+import { envConfig } from '../core/config/env.config';
 
 @Injectable()
 export class TransactionService {

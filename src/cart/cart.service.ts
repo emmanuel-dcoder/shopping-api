@@ -9,26 +9,29 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cart } from './schemas/cart.schema';
 import { AddToCartDto, UpdateCartItemDto } from './dto/create-cart.dto';
-import { ProductService } from 'src/product/product.service';
+import { ProductService } from '../product/product.service';
+import { Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class CartService {
   constructor(
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
     private productsService: ProductService,
-    // @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   // Get cart by user ID
   async getCart(userId: string): Promise<Cart> {
     try {
-      // const cacheKey = `cart_${userId}`;
+      const cacheKey = `cart_${userId}`;
 
       // Try to get from cache
-      // const cachedCart = await this.cacheManager.get(cacheKey);
-      // if (cachedCart) {
-      //   return cachedCart as Cart;
-      // }
+      const cachedCart = await this.cacheManager.get(cacheKey);
+      if (cachedCart) {
+        return cachedCart as Cart;
+      }
 
       let cart = await this.cartModel.findOne({ userId });
 
@@ -41,8 +44,7 @@ export class CartService {
         });
       }
 
-      // Cache cart
-      // await this.cacheManager.set(cacheKey, cart, 60); // TTL: 60 seconds
+      await this.cacheManager.set(cacheKey, cart, 60);
 
       return cart;
     } catch (error) {
@@ -72,7 +74,6 @@ export class CartService {
 
     while (retries < maxRetries) {
       try {
-        // Get the cart
         const cart = await this.getCart(userId);
 
         // Check if item already exists in cart
@@ -131,8 +132,7 @@ export class CartService {
           continue;
         }
 
-        // Clear cache
-        // await this.cacheManager.del(`cart_${userId}`);
+        await this.cacheManager.del(`cart_${userId}`);
 
         return updatedCart;
       } catch (error) {
@@ -169,7 +169,6 @@ export class CartService {
         throw new NotFoundException(`Product ${productId} not found in cart`);
       }
 
-      // If quantity is 0, remove the item
       if (quantity === 0) {
         return this.removeFromCart(userId, productId);
       }
@@ -203,8 +202,7 @@ export class CartService {
         throw new ConflictException('Cart was modified. Please try again.');
       }
 
-      // Clear cache
-      // await this.cacheManager.del(`cart_${userId}`);
+      await this.cacheManager.del(`cart_${userId}`);
 
       return updatedCart;
     } catch (error) {
@@ -218,10 +216,8 @@ export class CartService {
   // Remove item from cart
   async removeFromCart(userId: string, productId: string): Promise<Cart> {
     try {
-      // Get current cart
       const cart = await this.getCart(userId);
 
-      // Find the item in the cart
       const existingItem = cart.items.find(
         (item) => item.productId.toString() === productId,
       );
@@ -246,8 +242,7 @@ export class CartService {
         throw new ConflictException('Cart was modified. Please try again.');
       }
 
-      // Clear cache
-      // await this.cacheManager.del(`cart_${userId}`);
+      await this.cacheManager.del(`cart_${userId}`);
 
       return updatedCart;
     } catch (error) {
@@ -269,8 +264,7 @@ export class CartService {
         { new: true, upsert: true },
       );
 
-      // Clear cache
-      // await this.cacheManager.del(`cart_${userId}`);
+      await this.cacheManager.del(`cart_${userId}`);
 
       return updatedCart;
     } catch (error) {

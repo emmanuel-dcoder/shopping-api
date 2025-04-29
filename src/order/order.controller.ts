@@ -16,7 +16,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
-import { successResponse } from 'src/core/config/response';
+import { successResponse } from '../core/config/response';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderStatus } from './enum/order-enum';

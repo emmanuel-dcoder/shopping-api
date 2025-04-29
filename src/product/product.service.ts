@@ -51,7 +51,6 @@ export class ProductService {
       const cacheKey = `all_products_${page}_${limit}`;
 
       const cachedProducts = await this.redisService.get(cacheKey);
-
       if (cachedProducts) {
         return cachedProducts as {
           products: Product[];

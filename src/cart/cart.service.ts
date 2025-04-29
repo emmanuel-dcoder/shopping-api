@@ -10,16 +10,14 @@ import { Model } from 'mongoose';
 import { Cart } from './schemas/cart.schema';
 import { AddToCartDto, UpdateCartItemDto } from './dto/create-cart.dto';
 import { ProductService } from '../product/product.service';
-import { Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class CartService {
   constructor(
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
     private productsService: ProductService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly redisService: RedisService,
   ) {}
 
   // Get cart by user ID
@@ -28,7 +26,7 @@ export class CartService {
       const cacheKey = `cart_${userId}`;
 
       // Try to get from cache
-      const cachedCart = await this.cacheManager.get(cacheKey);
+      const cachedCart = await this.redisService.get(cacheKey);
       if (cachedCart) {
         return cachedCart as Cart;
       }
@@ -44,7 +42,7 @@ export class CartService {
         });
       }
 
-      await this.cacheManager.set(cacheKey, cart, 60);
+      await this.redisService.set(cacheKey, cart, 60);
 
       return cart;
     } catch (error) {
@@ -132,7 +130,7 @@ export class CartService {
           continue;
         }
 
-        await this.cacheManager.del(`cart_${userId}`);
+        await this.redisService.del(`cart_${userId}`);
 
         return updatedCart;
       } catch (error) {
@@ -202,7 +200,7 @@ export class CartService {
         throw new ConflictException('Cart was modified. Please try again.');
       }
 
-      await this.cacheManager.del(`cart_${userId}`);
+      await this.redisService.del(`cart_${userId}`);
 
       return updatedCart;
     } catch (error) {
@@ -242,7 +240,7 @@ export class CartService {
         throw new ConflictException('Cart was modified. Please try again.');
       }
 
-      await this.cacheManager.del(`cart_${userId}`);
+      await this.redisService.del(`cart_${userId}`);
 
       return updatedCart;
     } catch (error) {
@@ -264,7 +262,7 @@ export class CartService {
         { new: true, upsert: true },
       );
 
-      await this.cacheManager.del(`cart_${userId}`);
+      await this.redisService.del(`cart_${userId}`);
 
       return updatedCart;
     } catch (error) {

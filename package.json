@@ -44,6 +44,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "handlebars": "^4.7.8",
+    "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.1",
     "nodemailer": "^6.10.0",

@@ -6,7 +6,8 @@ import { CartController } from './cart.controller';
 import { CartService } from './cart.service';
 import { ProductService } from '../product/product.service';
 import { Product, ProductSchema } from '../product/schemas/product.schema';
-import { CacheModule } from '@nestjs/cache-manager';
+import { RedisModule } from '../redis/redis.module';
+
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -14,7 +15,7 @@ import { CacheModule } from '@nestjs/cache-manager';
       { name: Product.name, schema: ProductSchema },
     ]),
     ProductModule,
-    CacheModule.register(),
+    RedisModule,
   ],
   controllers: [CartController],
   providers: [CartService, ProductService],

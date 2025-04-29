@@ -3,7 +3,6 @@ import {
   BadRequestException,
   HttpException,
   NotFoundException,
-  Inject,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -14,8 +13,7 @@ import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto';
 import { OrderStatus } from './enum/order-enum';
 import { PaystackService } from '../provider/paystack.service';
 import { UserService } from '../user/user.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class OrderService {
@@ -25,7 +23,7 @@ export class OrderService {
     private cartService: CartService,
     private productService: ProductService,
     private paystackService: PaystackService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly redisService: RedisService,
   ) {}
 
   // Create a new order from cart
@@ -95,7 +93,7 @@ export class OrderService {
       // Clear user's cart
       await this.cartService.clearCart(userId);
 
-      await this.cacheManager.del(`user_orders_${userId}`);
+      await this.redisService.del(`user_orders_${userId}`);
 
       return initializePaystack.data;
     } catch (error) {
@@ -117,7 +115,7 @@ export class OrderService {
       const cacheKey = `user_orders_${userId}_${page}_${limit}_${status || ''}`;
 
       // Try to get from cache
-      const cachedOrders = await this.cacheManager.get(cacheKey);
+      const cachedOrders = await this.redisService.get(cacheKey);
       if (cachedOrders) {
         return cachedOrders as {
           orders: Order[];
@@ -147,7 +145,7 @@ export class OrderService {
 
       const result = { orders, total, page, limit };
 
-      await this.cacheManager.set(cacheKey, result, 60);
+      await this.redisService.set(cacheKey, result, 60);
 
       return result;
     } catch (error) {
@@ -164,7 +162,7 @@ export class OrderService {
       const cacheKey = `order_${id}`;
 
       // Try to get from cache
-      const cachedOrder = await this.cacheManager.get(cacheKey);
+      const cachedOrder = await this.redisService.get(cacheKey);
       if (cachedOrder) {
         return cachedOrder as Order;
       }
@@ -175,7 +173,7 @@ export class OrderService {
         throw new NotFoundException(`Order with ID ${id} not found`);
       }
 
-      await this.cacheManager.set(cacheKey, order, 300); // TTL: 5 minutes
+      await this.redisService.set(cacheKey, order, 300); // TTL: 5 minutes
 
       return order;
     } catch (error) {
@@ -216,8 +214,8 @@ export class OrderService {
         throw new NotFoundException(`Order with ID ${id} not found`);
       }
 
-      await this.cacheManager.del(`order_${id}`);
-      await this.cacheManager.del(`user_orders_${order.userId}`);
+      await this.redisService.del(`order_${id}`);
+      await this.redisService.del(`user_orders_${order.userId}`);
 
       return updatedOrder;
     } catch (error) {

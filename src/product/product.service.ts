@@ -9,15 +9,13 @@ import { Model } from 'mongoose';
 import { Product } from './schemas/product.schema';
 import { CreateProductDto, UpdateStockDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly redisService: RedisService,
   ) {}
 
   //create a new product
@@ -29,7 +27,7 @@ export class ProductService {
       if (!product) throw new BadRequestException('Error creating product');
 
       // Clear products cache
-      await this.cacheManager.del('all_products');
+      await this.redisService.del('all_products');
 
       return product;
     } catch (error) {
@@ -40,7 +38,6 @@ export class ProductService {
     }
   }
 
-  // Get all products with pagination and optional filtering
   async findAll(
     page = 1,
     limit = 10,
@@ -51,10 +48,12 @@ export class ProductService {
     limit: number;
   }> {
     try {
+      console.log('RedisService instance:', this.redisService);
       const cacheKey = `all_products_${page}_${limit}`;
 
-      // Try to get from cache
-      const cachedProducts = await this.cacheManager.get(cacheKey);
+      // ✅ Use custom RedisService
+      const cachedProducts = await this.redisService.get(cacheKey);
+      console.log('cached products', cachedProducts);
       if (cachedProducts) {
         return cachedProducts as {
           products: Product[];
@@ -72,7 +71,8 @@ export class ProductService {
 
       const result = { products, total, page, limit };
 
-      await this.cacheManager.set(cacheKey, result, 60); // TTL: 60 seconds
+      // ✅ Cache the result
+      await this.redisService.set(cacheKey, result, 60);
 
       return result;
     } catch (error) {
@@ -82,14 +82,13 @@ export class ProductService {
       );
     }
   }
-
   // Get a product by ID
   async findOne(id: string): Promise<Product> {
     try {
       const cacheKey = `product_${id}`;
 
       // Try to get from cache
-      const cachedProduct = await this.cacheManager.get(cacheKey);
+      const cachedProduct = await this.redisService.get(cacheKey);
       if (cachedProduct) {
         return cachedProduct as Product;
       }
@@ -99,7 +98,7 @@ export class ProductService {
         throw new NotFoundException(`Product with ID ${id} not found`);
       }
 
-      await this.cacheManager.set(cacheKey, product, 300);
+      await this.redisService.set(cacheKey, product, 300);
 
       return product;
     } catch (error) {
@@ -124,8 +123,8 @@ export class ProductService {
         throw new NotFoundException(`Product with ID ${id} not found`);
       }
 
-      await this.cacheManager.del(`product_${id}`);
-      await this.cacheManager.del('all_products');
+      await this.redisService.del(`product_${id}`);
+      await this.redisService.del('all_products');
 
       return product;
     } catch (error) {
@@ -180,7 +179,7 @@ export class ProductService {
           continue;
         }
 
-        await this.cacheManager.del(`product_${id}`);
+        await this.redisService.del(`product_${id}`);
 
         return updatedProduct;
       } catch (error) {
@@ -244,8 +243,8 @@ export class ProductService {
         throw new NotFoundException(`Product with ID ${id} not found`);
       }
 
-      await this.cacheManager.del(`product_${id}`);
-      await this.cacheManager.del('all_products');
+      await this.redisService.del(`product_${id}`);
+      await this.redisService.del('all_products');
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

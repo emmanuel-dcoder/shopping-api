@@ -3,12 +3,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './schemas/product.schema';
 import { ProductsController } from './product.controller';
 import { ProductService } from './product.service';
-import { CacheModule } from '@nestjs/cache-manager';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
-    CacheModule.register(),
+    RedisModule,
   ],
   controllers: [ProductsController],
   providers: [ProductService],

@@ -13,7 +13,7 @@ import { User, UserSchema } from '../user/schemas/user.schema';
 import { MailService } from '../core/mail/email';
 import { Cart, CartSchema } from '../cart/schemas/cart.schema';
 import { Product, ProductSchema } from '../product/schemas/product.schema';
-import { CacheModule } from '@nestjs/cache-manager';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   imports: [
@@ -23,9 +23,9 @@ import { CacheModule } from '@nestjs/cache-manager';
       { name: Cart.name, schema: CartSchema },
       { name: Product.name, schema: ProductSchema },
     ]),
+    RedisModule,
     CartModule,
     ProductModule,
-    CacheModule.register(),
   ],
   controllers: [OrderController],
   providers: [

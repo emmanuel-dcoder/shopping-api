@@ -5,57 +5,72 @@ import Redis from 'ioredis';
 @Injectable()
 export class RedisService implements OnModuleDestroy {
   private client: Redis;
+  private isConnected = false;
 
   async connect(): Promise<void> {
     if (this.client) {
       console.log('Redis client already connected');
       return;
     }
+
     this.client = new Redis({
       port: Number(envConfig.redis.port),
       host: envConfig.redis.url,
       // password: envConfig.redis.password,
+      lazyConnect: true, // prevents auto-connect until .connect() is called
     });
 
-    this.client.on('connect', () => {
-      console.log('Redis connected successfully');
-    });
+    try {
+      await this.client.connect();
+      this.isConnected = true;
+      console.log('✅ Redis connected successfully');
+    } catch (err) {
+      console.error('❌ Redis connection failed:', err);
+      this.isConnected = false;
+    }
 
     this.client.on('error', (err) => {
       console.error('❌ Redis error:', err);
+      this.isConnected = false;
+    });
+
+    this.client.on('end', () => {
+      console.warn('⚠️ Redis connection closed');
+      this.isConnected = false;
     });
   }
 
   async get(key: string): Promise<any> {
-    if (!this.client) {
-      console.error('⚠️ Redis client not initialized in get()');
+    if (!this.isConnected) return null;
+    try {
+      const result = await this.client.get(key);
+      return result ? JSON.parse(result) : null;
+    } catch (err) {
+      console.error('Redis GET error:', err);
       return null;
     }
-
-    const result = await this.client.get(key);
-    return result ? JSON.parse(result) : null;
   }
 
   async set(key: string, value: any, ttlInSeconds = 3600): Promise<void> {
-    if (!this.client) {
-      console.error('⚠️ Redis client not initialized in set()');
-      return;
+    if (!this.isConnected) return;
+    try {
+      await this.client.set(key, JSON.stringify(value), 'EX', ttlInSeconds);
+    } catch (err) {
+      console.error('Redis SET error:', err);
     }
-
-    await this.client.set(key, JSON.stringify(value), 'EX', ttlInSeconds);
   }
 
   async del(key: string): Promise<void> {
-    if (!this.client) {
-      console.error('⚠️ Redis client not initialized in del()');
-      return;
+    if (!this.isConnected) return;
+    try {
+      await this.client.del(key);
+    } catch (err) {
+      console.error('Redis DEL error:', err);
     }
-
-    await this.client.del(key);
   }
 
   async onModuleDestroy() {
-    if (this.client) {
+    if (this.client && this.isConnected) {
       await this.client.quit();
     }
   }

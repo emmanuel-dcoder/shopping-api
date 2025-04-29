@@ -1,151 +1,176 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Shopping Cart System API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A robust and scalable shopping cart system API built with NestJS, MongoDB, and Redis. This API allows multiple users to purchase products from a shared inventory while efficiently handling concurrent operations.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tech Stack
 
-# Music Booking API
-
-# Overview
-
-The Music Booking API is a RESTful API designed to manage artist profiles, event listings, and booking transactions for a music event platform. Built with scalability, security, and usability in mind, it allows users to create accounts, browse events, and book tickets while artists can manage their profiles and events. The API is deployed on Render and includes comprehensive documentation via Swagger and Postman.
+- **Node.js**: JavaScript runtime
+- **NestJS**: Progressive Node.js framework
+- **Mongoose**: MongoDB object modeling for Node.js
+- **MongoDB**: NoSQL database
+- **Redis**: In-memory data structure store used for caching
 
 ## Features
 
-1. **Artist Management**:
+### Product Management
 
-   - Create and retrieve artist profiles.
-   - Artists can log in to manage their events.
+- Create, read, update, and delete products
+- Maintain product inventory with stock quantities
+- Search and filter products
 
-2. **Event Management**:
+### Cart Management
 
-   - Create and list events tied to specific artists.
-   - Retrieve event details for booking.
+- Add/remove items from user carts
+- Update item quantities
+- Calculate total amounts
 
-3. **Booking System**:
+### Order Processing
 
-   - Users can book tickets for events.
-   - Tracks booking status (pending, confirmed, cancelled).
+- Create orders from user carts
+- Update order status
+- Prevent overselling through stock reservation
+- Cancel orders with automatic stock release
 
-4. **User Management**:
+### Performance Optimizations
 
-   - Non-artist users can register and log in to book events.
-   - Distinct from artists for clear role separation.
+- Redis caching for frequently accessed data
+- Database indexing for faster queries
+- Optimistic concurrency control for handling race conditions
+- MongoDB transactions for maintaining data consistency
 
-5. **Authentication**:
-   - JWT-based authentication for secure access to protected endpoints.
-   - Supports both artist and user logins.
+## Setup Instructions
 
-## Technology Stack
+### Prerequisites
 
-- **Framework**: NestJS (Node.js)
-- **Database**: PostgresSQL with typeORM
-- **Cache**: Redis
-- **Third Party API**: Paystack, paystack webhook, Exchange rate API
-- **Authentication**: JWT (JSON Web Tokens) via `@nestjs/jwt` and `passport-jwt`
-- **Validation**: `class-validator` and `class-transformer`
-- **API Documentation**: Swagger (`@nestjs/swagger`)
-- **Deployment**: Render
-- **Version Control**: GitHub
+- Node.js (v14 or later)
+- MongoDB (v4.4 or later)
+- Redis (v6 or later)
 
----
+### Installation
 
-## Base URL
+1. Clone the repository:
 
-The API is hosted at:  
-**`https://musicbookingapi.onrender.com`**
+   ```bash
+   git clone <repository-url>
+   cd shopping-cart-api
+   ```
 
-## API Documentation
+2. Install dependencies:
 
-### Swagger Documentation
+   ```bash
+   npm install
+   ```
 
-Explore the interactive Swagger UI for detailed endpoint descriptions, request/response schemas, and testing:  
-[**Swagger Docs**](https://musicbookingapi.onrender.com/docs)
+3. Create a `.env` file in the root directory with the following content:
 
-## GitHub Repository
+   ```
+   MONGODB_URI=mongodb://localhost/shopping-cart
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+   ```
 
-The source code is available at:  
-[**GitHub Repo**](https://github.com/codewithemmy/fx-trading-api)
+4. Start MongoDB and Redis:
 
----
+   ```bash
+   # Start MongoDB (using your preferred method)
+   # Example for MongoDB Community Edition:
+   mongod
 
-## Compile and run the project
+   # Start Redis
+   redis-server
+   ```
+
+5. Run the application:
+
+   ```bash
+   # Development mode
+   npm run start:dev
+
+   # Production mode
+   npm run build
+   npm run start:prod
+   ```
+
+### Seed Data
+
+To seed the database with sample products:
 
 ```bash
-#install dependencies
-$ npm install
-
-# development
-$ npm run start:dev
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run seed
 ```
 
-## Environment Variables
+## API Endpoints
 
-- `MONGO_URL`: MongoDB connection string.
-- `PORT`: Server port (default: 5000).
-- `TOKEN_EXPIRE_IN`: JWT expiry.
-- `SECRET_KEY`: JWT secret key.
-- `MAIL_PASSWORD`: mail password.
-- `MAIL_USER`: SMTP gmail email or username.
-- `MAIL_PORT`: SMTP gmail mail port, usually "465".
-- `MAIL_HOST`: SMTP gmail mail host, usually "smtp.gmail.com".
+### Products
 
-## Endpoints
+- `GET /products` - Get all products with pagination
+- `GET /products/:id` - Get a product by ID
+- `POST /products` - Create a new product
+- `PATCH /products/:id` - Update a product
+- `PATCH /products/:id/stock` - Update product stock
+- `DELETE /products/:id` - Delete a product
 
-Below is a summary of the key endpoints. Refer to the Swagger or Postman documentation for full details.
+### Carts
 
-| **Endpoint**                | **Method** | **Description**                                   | **Protected** |
-| --------------------------- | ---------- | ------------------------------------------------- | ------------- |
-| `api/v1/auth/login`         | POST       | Authenticate a user or artist                     | No            |
-| `api/v1/users`              | POST       | Create a new user                                 | No            |
-| `api/v1/users`              | GET        | Get all users                                     | Yes (JWT)     |
-| `api/v1/users/:id`          | GET        | Get a user by ID                                  | Yes (JWT)     |
-| `api/v1/users/profile/me`   | GET        | Get logged-in user profile                        | Yes (JWT)     |
-| `api/v1/users/profile/me`   | PATCH      | Update logged-in user profile (excluding email)   | Yes (JWT)     |
-| `api/v1/artists`            | POST       | Create a new artist                               | No            |
-| `api/v1/artists`            | GET        | Get all artists                                   | No            |
-| `api/v1/artists/:id`        | GET        | Get an artist by ID                               | No            |
-| `api/v1/artists/profile/me` | GET        | Get logged-in artist profile                      | Yes (JWT)     |
-| `api/v1/artists/profile/me` | PATCH      | Update logged-in artist profile (excluding email) | Yes (JWT)     |
-| `api/v1/events`             | POST       | Create a new event                                | Yes (JWT)     |
-| `api/v1/events`             | GET        | Get all events                                    | No            |
-| `api/v1/events/:id`         | GET        | Get an event by ID                                | No            |
-| `api/v1/events/:id`         | PATCH      | Update an event                                   | No            |
-| `api/v1/events/:id`         | DELETE     | Delete an event                                   | No            |
-| `api/v1/bookings`           | POST       | Create a new booking                              | Yes (JWT)     |
-| `api/v1/bookings`           | GET        | Get all bookings                                  | Yes (JWT)     |
-| `api/v1/bookings/:id`       | GET        | Get a booking by ID                               | Yes (JWT)     |
-| `api/v1/bookings/:id`       | PATCH      | Update a booking                                  | Yes (JWT)     |
-| `api/v1/bookings/:id`       | DELETE     | Cancel a booking                                  | Yes (JWT)     |
+- `GET /carts/:userId` - Get cart by user ID
+- `POST /carts` - Add item to cart
+- `PATCH /carts` - Update cart item quantity
+- `DELETE /carts/:userId/items/:productId` - Remove item from cart
+- `DELETE /carts/:userId` - Clear cart
 
-- **Protected Endpoints**: Require a Bearer token in the `Authorization` header, obtained from `/auth/login`.
+### Orders
 
----
+- `POST /orders` - Create a new order from cart
+- `GET /orders/user/:userId` - Get all orders for a user
+- `GET /orders/:id` - Get order by ID
+- `PATCH /orders/:id/status` - Update order status
+- `GET /orders/stats` - Get order statistics
 
-## License
+## Technical Design Decisions
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Concurrency Control
+
+To handle concurrent cart operations and prevent race conditions:
+
+1. **Optimistic Locking**: The system uses conditional updates to detect and handle concurrent modifications.
+2. **Retry Mechanism**: Failed updates due to concurrency issues are retried automatically.
+
+### Stock Management
+
+To prevent overselling:
+
+1. **Stock Reservation**: When an order is created, stock is immediately reserved.
+2. **Transaction Support**: MongoDB transactions ensure atomicity in multi-document operations.
+3. **Stock Release**: If an order is canceled, the stock is automatically returned to inventory.
+
+### Caching Strategy
+
+Redis caching is implemented to improve performance:
+
+1. **Product Caching**: Frequently accessed products are cached to reduce database load.
+2. **Cart Caching**: User carts are cached for faster access.
+3. **Order Caching**: Recent orders and statistics are cached.
+4. **Cache Invalidation**: Caches are automatically invalidated when underlying data changes.
+
+## Assumptions
+
+1. User authentication and authorization are handled by a separate service.
+2. Product prices don't change frequently.
+3. Each user can have only one active cart.
+4. Stock quantities are always non-negative integers.
+
+## Scaling Considerations
+
+1. **Horizontal Scaling**: The stateless API can be deployed across multiple servers.
+2. **Database Sharding**: MongoDB collection sharding for large datasets.
+3. **Redis Cluster**: For handling high cache loads.
+4. **Read Replicas**: MongoDB read replicas for read-heavy workloads.
+
+## Future Improvements
+
+1. Implement user authentication and authorization
+2. Add payment processing integration
+3. Implement product categories and search functionality
+4. Add inventory alerts for low stock
+5. Implement webhooks for order status changes
+6. Add support for product variants

@@ -82,7 +82,6 @@ export class OrderService {
         reference: initializePaystack.data.reference,
       });
 
-      // Save the new order
       await newOrder.save();
 
       // Update stock for each product
@@ -90,7 +89,6 @@ export class OrderService {
         await this.productService.reserveStock(item.productId, item.quantity);
       }
 
-      // Clear user's cart
       await this.cartService.clearCart(userId);
 
       await this.redisService.del(`user_orders_${userId}`);

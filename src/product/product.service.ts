@@ -48,12 +48,10 @@ export class ProductService {
     limit: number;
   }> {
     try {
-      console.log('RedisService instance:', this.redisService);
       const cacheKey = `all_products_${page}_${limit}`;
 
-      // ✅ Use custom RedisService
       const cachedProducts = await this.redisService.get(cacheKey);
-      console.log('cached products', cachedProducts);
+
       if (cachedProducts) {
         return cachedProducts as {
           products: Product[];
@@ -71,7 +69,6 @@ export class ProductService {
 
       const result = { products, total, page, limit };
 
-      // ✅ Cache the result
       await this.redisService.set(cacheKey, result, 60);
 
       return result;

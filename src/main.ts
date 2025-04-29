@@ -27,7 +27,7 @@ async function bootstrap() {
   const adapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(adapterHost));
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 5000);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

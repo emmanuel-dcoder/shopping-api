@@ -8,6 +8,7 @@ import {
   Query,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
@@ -17,12 +18,14 @@ import {
   ApiBody,
   ApiQuery,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateStockDto } from './dto/create-product.dto';
 import { Product } from './schemas/product.schema';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { successResponse } from '../core/config/response';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 
 @ApiTags('Product')
 @Controller('api/v1/product')
@@ -30,6 +33,8 @@ export class ProductsController {
   constructor(private readonly productsService: ProductService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiBody({ type: CreateProductDto })
   @ApiOperation({ summary: 'Create a new product' })
   @ApiResponse({ status: 201, description: 'Product created successfully' })
@@ -48,7 +53,6 @@ export class ProductsController {
   @ApiOperation({ summary: 'Get all products with pagination' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
-  // @UseInterceptors(CacheInterceptor)
   async findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
     const data = await this.productsService.findAll(+page, +limit);
     return successResponse({
@@ -64,7 +68,6 @@ export class ProductsController {
   @ApiResponse({ status: 200, description: 'Product Details', type: Product })
   @ApiResponse({ status: 404, description: 'Product not found' })
   @ApiParam({ name: 'id', type: String })
-  // @UseInterceptors(CacheInterceptor)
   async findOne(@Param('id') id: string) {
     const data = await this.productsService.findOne(id);
     return successResponse({
@@ -76,6 +79,8 @@ export class ProductsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a product' })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({
@@ -101,6 +106,8 @@ export class ProductsController {
   }
 
   @Patch(':id/stock')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Add to product stock' })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({
@@ -125,6 +132,8 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a product' })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({

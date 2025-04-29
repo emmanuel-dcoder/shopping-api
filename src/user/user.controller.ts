@@ -19,8 +19,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { User } from './schemas/user.schema';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { successResponse } from 'src/core/config/response';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { successResponse } from '../core/config/response';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('User')

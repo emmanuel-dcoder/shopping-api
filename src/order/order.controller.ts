@@ -6,6 +6,7 @@ import {
   Param,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
@@ -15,14 +16,18 @@ import {
   ApiBody,
   ApiParam,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { successResponse } from '../core/config/response';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderStatus } from './enum/order-enum';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 
 @ApiTags('Order')
 @Controller('api/v1/order')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
@@ -55,7 +60,6 @@ export class OrderController {
     status: 400,
     description: 'Bad Request',
   })
-  // @UseInterceptors(CacheInterceptor)
   async getUserOrders(
     @Param('userId') userId: string,
     @Query('page') page = 1,
@@ -84,7 +88,6 @@ export class OrderController {
     status: 400,
     description: 'Bad Request',
   })
-  // @UseInterceptors(CacheInterceptor)
   async getOrderById(@Param('id') id: string) {
     const data = await this.orderService.getOrderById(id);
     return successResponse({

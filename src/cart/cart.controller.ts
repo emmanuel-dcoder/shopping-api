@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
@@ -15,13 +16,17 @@ import {
   ApiResponse,
   ApiBody,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { successResponse } from '../core/config/response';
 import { CartService } from './cart.service';
 import { AddToCartDto, UpdateCartItemDto } from './dto/create-cart.dto';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 
 @ApiTags('Cart')
 @Controller('api/v1/cart')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class CartController {
   constructor(private readonly cartsService: CartService) {}
 

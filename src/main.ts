@@ -4,9 +4,29 @@ import { AllExceptionsFilter } from './core/common/filters/all-exceptions.filter
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { RedisService } from './redis/redis.service';
+// import { ProductService } from './product/product.service';
+// import { seedProducts } from './core/config/seed-data';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // try {
+  //   const productsService = app.get(ProductService);
+
+  //   console.log('Seeding database...');
+
+  //   // Seed products
+  //   for (const product of seedProducts) {
+  //     await productsService.create(product);
+  //     console.log(`Seeded product: ${product.name}`);
+  //   }
+
+  //   console.log('Database seeding completed successfully!');
+  // } catch (error) {
+  //   console.error('Error seeding database:', error);
+  // } finally {
+  //   await app.close();
+  // }
 
   app.enableCors({ origin: '*', credentials: true });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));

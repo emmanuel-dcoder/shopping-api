@@ -8,7 +8,7 @@ export const envConfig = {
     mongo_url: process.env.MONGO_URL,
   },
   server: {
-    port: parseInt(process.env.SERVER_PORT || '3000', 10),
+    port: parseInt(process.env.SERVER_PORT || '4000', 10),
     environment: process.env.NODE_ENV || 'development',
   },
   jwt: {
@@ -31,8 +31,8 @@ export const envConfig = {
     key: process.env.PAYSTACK_SK_KEY,
   },
   redis: {
-    url: process.env.REDIS_CLOUD_URL,
-    password: process.env.REDIS_CLOUD_PASSWORD,
-    port: process.env.REDIS_CLOUD_PORT,
+    url: process.env.REDIS_URL,
+    password: process.env.REDIS_PASSWORD,
+    port: process.env.REDIS_PORT,
   },
 };

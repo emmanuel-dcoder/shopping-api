@@ -2,6 +2,11 @@
 
 A robust and scalable shopping cart system API built with NestJS, MongoDB, and Redis. This API allows multiple users to purchase products from a shared inventory while efficiently handling concurrent operations.
 
+### Swagger Documentation
+
+Explore the interactive Swagger UI for detailed endpoint descriptions, request/response schemas, and testing:  
+[**Swagger Docs**](https://shopping-api-oxdm.onrender.com/docs)
+
 ## Tech Stack
 
 - **Node.js**: JavaScript runtime
@@ -26,16 +31,25 @@ A robust and scalable shopping cart system API built with NestJS, MongoDB, and R
 
 ### Order Processing
 
-- Create orders from user carts
+- Create orders from user carts, pay with paystack link
 - Update order status
 - Prevent overselling through stock reservation
 - Cancel orders with automatic stock release
+
+### Transaction Processing with Paystack Webhook
+
+- Webhook verification of order payment
 
 ### Performance Optimizations
 
 - Redis caching for frequently accessed data
 - Optimistic concurrency control for handling race conditions
 - MongoDB transactions for maintaining data consistency
+
+### NOTE
+
+- Docker is used for redis
+- If docker redis version is above 5 remove or comment out password when creating instance
 
 ## Setup Instructions
 
@@ -63,9 +77,18 @@ A robust and scalable shopping cart system API built with NestJS, MongoDB, and R
 3. Create a `.env` file in the root directory with the following content:
 
    ```
-   MONGODB_URI=mongodb://localhost/shopping-cart
-   REDIS_HOST=localhost
-   REDIS_PORT=6379
+   MONGO_URL="mongo db url"
+   JWT_EXPIRY="jwt expiry day"
+   PORT="e.g 4000"
+   MAIL_USER= "smtp mail use name"
+   MAIL_PASSWORD= "smtp password"
+   MAIL_PORT="smtp port"
+   MAIL_HOST="e.g smtp.gmail.com"
+   PAYSTACK_SK_KEY="paystack payment secret key"
+   PAYSTACK_BASE_URL="paystack base url e.g. https://api.paystack.co"
+   REDIS_URL="redis url e.g 127.0.0.1 or localhost"
+   REDIS_PASSWORD="redis password"
+   REDIS_PORT="redis port e.g 6379 for docker redis"
    ```
 
 4. Start MongoDB and Redis:

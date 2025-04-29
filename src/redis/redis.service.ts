@@ -8,7 +8,7 @@ export class RedisService implements OnModuleDestroy {
 
   async connect(): Promise<void> {
     if (this.client) {
-      console.log('⚠️ Redis client already connected');
+      console.log('Redis client already connected');
       return;
     }
     this.client = new Redis({
@@ -18,7 +18,7 @@ export class RedisService implements OnModuleDestroy {
     });
 
     this.client.on('connect', () => {
-      console.log('✅ Redis connected successfully');
+      console.log('Redis connected successfully');
     });
 
     this.client.on('error', (err) => {

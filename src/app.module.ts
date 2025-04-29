@@ -10,10 +10,19 @@ import { ProductModule } from './product/product.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
     MongooseModule.forRoot(envConfig.database.mongo_url),
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      host: envConfig.redis.url,
+      port: envConfig.redis.port,
+      ttl: 60,
+    }),
     AuthModule,
     UserModule,
     ProductModule,

@@ -30,4 +30,9 @@ export const envConfig = {
     url: process.env.PAYSTACK_BASE_URL,
     key: process.env.PAYSTACK_SK_KEY,
   },
+  redis: {
+    url: process.env.REDIS_CLOUD_URL,
+    password: process.env.REDIS_CLOUD_PASSWORD,
+    port: process.env.REDIS_CLOUD_PORT,
+  },
 };

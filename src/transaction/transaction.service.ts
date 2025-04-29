@@ -18,6 +18,7 @@ export class TransactionService {
   }
 
   async handlePaystackEvent(event: any) {
+    //verify transaction
     const order = await this.orderModel.findOne({
       reference: event.data.reference,
     });

@@ -5,7 +5,7 @@ A robust and scalable shopping cart system API built with NestJS, MongoDB, and R
 ### Swagger Documentation
 
 Click here to explore the interactive Swagger UI for detailed endpoint descriptions, request/response schemas, and testing:  
-[**Swagger Docs**](https://shopping-api-oxdm.onrender.com/docs)
+[**Swagger Docs**](https://shopping-api-1-3s4u.onrender.com/docs)
 
 ## Tech Stack
 

@@ -7,27 +7,23 @@ export class RedisService implements OnModuleDestroy {
   private client: Redis;
 
   async connect(): Promise<void> {
-    try {
-      if (this.client) {
-        console.log('Redis client already connected');
-        return;
-      }
-      this.client = new Redis({
-        port: Number(envConfig.redis.port),
-        host: envConfig.redis.url,
-        password: envConfig.redis.password,
-      });
-
-      this.client.on('connect', () => {
-        console.log('Redis connected successfully');
-      });
-
-      // this.client.on('error', (err) => {
-      //   console.error('❌ Redis error:', err);
-      // });
-    } catch (error) {
-      console.log('redis error', error);
+    if (this.client) {
+      console.log('Redis client already connected');
+      return;
     }
+    this.client = new Redis({
+      port: Number(envConfig.redis.port),
+      host: envConfig.redis.url,
+      password: envConfig.redis.password,
+    });
+
+    this.client.on('connect', () => {
+      console.log('Redis connected successfully');
+    });
+
+    // this.client.on('error', (err) => {
+    //   console.error('❌ Redis error:', err);
+    // });
   }
 
   async get(key: string): Promise<any> {
